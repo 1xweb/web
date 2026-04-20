@@ -1,0 +1,17 @@
+# Render Deployment Configuration
+
+# Deploying a web service on Render
+
+services:
+  - type: web
+    name: my-web-service
+    env: node
+    plan: starter
+    region: oregon
+    buildCommand: yarn install
+    startCommand: yarn start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    autoDeploy: true
+   Publish Branch: main
