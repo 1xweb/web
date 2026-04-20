@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MatchMind AI v4.0 | منصة الذكاء الاصطناعي لكرة القدم</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── DESIGN TOKENS ── */
+    :root {
+      --bg:       #080c14;
+      --surface:  #0d1320;
+      --card:     #111827;
+      --border:   rgba(255,255,255,0.07);
+      --primary:  #00e5a0;
+      --primary2: #00b87a;
+      --accent:   #3b82f6;
+      --accent2:  #60a5fa;
+      --warn:     #f59e0b;
+      --danger:   #ef4444;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --mono:     'IBM Plex Mono', monospace;
+      --sans:     'Tajawal', sans-serif;
+      --r:        12px;
+      --shadow:   0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--primary2); border-radius: 3px; }
+
+    /* ── LAYOUT ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── AUTH PAGE ── */
+    #auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,160,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 50%),
+                  var(--bg);
+      padding: 2rem;
+    }
+
+    .auth-wrap {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .auth-logo .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .logo-name {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .auth-tagline {
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow), 0 0 0 1px rgba(0,229,160,0.05);
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 2rem;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 0.65rem;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: var(--muted);
+    }
+    .auth-tab.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color: #000;
+    }
+
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    .field {
+      margin-bottom: 1.2rem;
+    }
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,229,160,0.12);
+    }
+    .field input::placeholder { color: var(--muted); opacity: 0.6; }
+
+    .check-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .check-row input { width: auto; margin: 0; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.95rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,229,160,0.35);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
+    }
+
+    .auth-hint {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .auth-hint code {
+      font-family: var(--mono);
+      background: rgba(0,229,160,0.1);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ── MAIN APP ── */
+    #app-page { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* TOP NAV */
+    .topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,12,20,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 62px;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 1.1rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+    .nav-logo .dot { font-size: 0.6rem; }
+    .nav-center { flex: 1; display: flex; justify-content: center; gap: 0.25rem; }
+    .nav-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+      font-family: var(--sans);
+    }
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(0,229,160,0.1);
+      color: var(--primary);
+    }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+
+    .ws-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.75rem;
+      font-family: var(--mono);
+      color: var(--muted);
+      background: var(--surface);
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .ws-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--danger);
+      transition: background 0.3s;
+    }
+    .ws-dot.connected { background: var(--primary); animation: pulse 2s infinite; }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.3rem 0.8rem 0.3rem 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 900; color: #000;
+    }
+    .tier-badge {
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .tier-free { background: rgba(100,116,139,0.2); color: var(--muted); }
+    .tier-pro  { background: rgba(0,229,160,0.15); color: var(--primary); }
+    .tier-enterprise { background: rgba(59,130,246,0.15); color: var(--accent2); }
+
+    .btn-logout {
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(239,68,68,0.3);
+      background: rgba(239,68,68,0.08);
+      color: var(--danger);
+      transition: all 0.2s;
+      font-family: var(--sans);
+    }
+    .btn-logout:hover { background: rgba(239,68,68,0.18); }
+
+    /* VIEWS */
+    .view { display: none; flex: 1; }
+    .view.active { display: block; }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.5rem;
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .card-title .ct-icon { font-size: 1rem; }
+
+    /* ── PREDICT FORM ── */
+    .predict-form .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .predict-form .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+    .field-sm label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .field-sm input, .field-sm select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: var(--sans);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field-sm input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0,229,160,0.1);
+    }
+    .field-sm input[type="range"] {
+      padding: 0; background: transparent; border: none;
+      accent-color: var(--primary);
+    }
+
+    .section-divider {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent2);
+      font-weight: 700;
+      margin: 1.25rem 0 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-divider::after {
+      content: ''; flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, rgba(96,165,250,0.3), transparent);
+    }
+
+    .slider-row {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .slider-val {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--primary);
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .btn-predict {
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-predict:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,229,160,0.3); }
+    .btn-predict:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-predict .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-predict.loading .spinner { display: block; }
+    .btn-predict.loading .btn-text { display: none; }
+
+    /* ── RESULT CARD ── */
+    .result-card {
+      display: none;
+      background: linear-gradient(135deg, rgba(0,229,160,0.06), rgba(59,130,246,0.04));
+      border: 1px solid rgba(0,229,160,0.2);
+      border-radius: var(--r);
+      padding: 1.5rem;
+      margin-top: 1.25rem;
+      animation: slideIn 0.4s ease;
+    }
+    .result-card.show { display: block; }
+
+    .result-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 1.25rem;
+    }
+    .match-vs {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .signal-badge {
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+    .signal-buy  { background: rgba(0,229,160,0.15); color: var(--primary); border: 1px solid rgba(0,229,160,0.3); }
+    .signal-skip { background: rgba(239,68,68,0.12); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); }
+    .signal-watch{ background: rgba(245,158,11,0.12); color: var(--warn); border: 1px solid rgba(245,158,11,0.25); }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .metric-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem;
+      text-align: center;
+    }
+    .metric-val {
+      font-family: var(--mono);
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .metric-val.positive { color: var(--primary); }
+    .metric-val.negative { color: var(--danger); }
+    .metric-val.neutral  { color: var(--warn); }
+    .metric-val.blue     { color: var(--accent2); }
+    .metric-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .prob-bar-wrap { margin: 1rem 0 0.5rem; }
+    .prob-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.78rem; color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    .prob-bar {
+      height: 10px;
+      background: var(--surface);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .prob-fill {
+      height: 100%;
+      border-radius: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .result-meta {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .meta-tag {
+      font-size: 0.73rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* Live Feed */
+    .live-feed {
+      max-height: 260px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .feed-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 0.85rem;
+      font-size: 0.8rem;
+      animation: slideIn 0.3s ease;
+      display: flex; align-items: flex-start; gap: 0.6rem;
+    }
+    .feed-item.whale { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05); }
+    .feed-item.new_prediction { border-color: rgba(0,229,160,0.2); }
+    .feed-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .feed-content .feed-title { font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .feed-content .feed-sub   { color: var(--muted); font-size: 0.73rem; font-family: var(--mono); }
+
+    /* History Table */
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .history-table th {
+      text-align: right;
+      padding: 0.5rem 0.6rem;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-table td {
+      padding: 0.6rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-family: var(--mono);
+    }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── ADMIN DASHBOARD ── */
+    #admin-view { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .admin-title {
+      font-size: 1.4rem; font-weight: 900;
+    }
+    .admin-title span { color: var(--danger); }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .kpi-card.green::before  { background: var(--primary); }
+    .kpi-card.blue::before   { background: var(--accent); }
+    .kpi-card.yellow::before { background: var(--warn); }
+    .kpi-card.red::before    { background: var(--danger); }
+    .kpi-card.purple::before { background: #a855f7; }
+
+    .kpi-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .kpi-val  { font-size: 2rem; font-weight: 900; font-family: var(--mono); line-height: 1; }
+    .kpi-val.green  { color: var(--primary); }
+    .kpi-val.blue   { color: var(--accent2); }
+    .kpi-val.yellow { color: var(--warn); }
+    .kpi-val.red    { color: var(--danger); }
+    .kpi-val.purple { color: #c084fc; }
+    .kpi-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 0.3rem; font-weight: 700; }
+
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+    .admin-grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.25rem; }
+
+    .whale-trigger {
+      display: flex; gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .btn-whale {
+      flex: 1; padding: 0.75rem;
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-whale-up   { background: rgba(0,229,160,0.12); color: var(--primary); border: 1px solid rgba(0,229,160,0.25); }
+    .btn-whale-down { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-whale:hover { transform: translateY(-1px); filter: brightness(1.15); }
+
+    .users-list { max-height: 340px; overflow-y: auto; }
+    .user-row {
+      display: flex; align-items: center;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      gap: 0.75rem;
+      font-size: 0.82rem;
+    }
+    .user-row:last-child { border-bottom: none; }
+    .user-row .uname { flex: 1; font-weight: 700; }
+    .user-row .uemail { color: var(--muted); font-size: 0.75rem; font-family: var(--mono); }
+    .user-row .ucnt { color: var(--accent2); font-family: var(--mono); font-size: 0.8rem; }
+    .banned-tag { background: rgba(239,68,68,0.15); color: var(--danger); font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
+
+    /* Top Matches */
+    .top-match-row {
+      display: flex; align-items: center;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      gap: 0.75rem;
+      font-size: 0.8rem;
+    }
+    .tm-teams { flex: 1; font-weight: 700; }
+    .tm-ev { font-family: var(--mono); }
+
+    /* ── TOAST ── */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .toast {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+      min-width: 260px;
+      text-align: center;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .toast.success { border-color: rgba(0,229,160,0.35); }
+    .toast.error   { border-color: rgba(239,68,68,0.35); }
+    .toast.warn    { border-color: rgba(245,158,11,0.35); }
+
+    /* ── LOADING SCREEN ── */
+    #loading-screen {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9998;
+      gap: 1rem;
+      transition: opacity 0.5s;
+    }
+    .loading-logo {
+      font-size: 2rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .loading-bar {
+      width: 200px; height: 3px;
+      background: var(--surface);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loading-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      animation: loadBar 1.2s ease forwards;
+    }
+
+    /* ── CHARTS ── */
+    .chart-wrap { position: relative; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(16px) translateX(-50%) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) translateX(-50%) scale(1); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-8px) translateX(-50%); }
+    }
+    @keyframes loadBar {
+      0%   { width: 0%; }
+      60%  { width: 80%; }
+      100% { width: 100%; }
+    }
+    @keyframes countUp {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+    }
+    .empty-state .e-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; }
+    .empty-state p { font-size: 0.85rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+      .admin-grid, .admin-grid-3 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .topnav { padding: 0 1rem; }
+      .nav-center { display: none; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .predict-form .grid2, .predict-form .grid3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── MISC ── */
+    .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+    .text-muted { color: var(--muted); }
+    .text-sm { font-size: 0.8rem; }
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 0.2rem 0.55rem;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-green  { background: rgba(0,229,160,0.12); color: var(--primary); }
+    .badge-blue   { background: rgba(59,130,246,0.12); color: var(--accent2); }
+    .badge-yellow { background: rgba(245,158,11,0.12); color: var(--warn); }
+    .badge-red    { background: rgba(239,68,68,0.12); color: var(--danger); }
+    .badge-gray   { background: rgba(100,116,139,0.15); color: var(--muted); }
+
+    .refresh-btn {
+      padding: 0.35rem 0.75rem;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 7px;
+      color: var(--accent2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--sans);
+    }
+    .refresh-btn:hover { background: rgba(59,130,246,0.2); }
+  </style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="loading-logo">⚡ MatchMind AI</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div style="font-size:0.78rem;color:var(--muted);font-family:var(--mono)">v4.0 initializing...</div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- ══════════════════════════════════ AUTH PAGE ══════════════════════════════════ -->
+<div id="auth-page" class="page">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">⚡</div>
+        <span class="logo-name">MatchMind AI</span>
+      </div>
+      <div class="auth-tagline">منصة الذكاء الاصطناعي لتحليل مباريات كرة القدم</div>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">تسجيل الدخول</div>
+        <div class="auth-tab" onclick="switchAuthTab('register')">حساب جديد</div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="login-panel" class="form-panel active">
+        <div class="field">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="login-email" placeholder="admin@matchmind.ai" autocomplete="email"/>
+        </div>
+        <div class="field">
+          <label>كلمة المرور</label>
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"/>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="remember-me"/>
+          <label for="remember-me">تذكرني لمدة 7 أيام</label>
+        </div>
+        <button class="btn-primary" onclick="doLogin()">
+          <span id="login-btn-text">تسجيل الدخول</span>
+        </button>
+        <div class="auth-hint">
+          <strong>Admin:</strong> <code>admin@matchmind.ai</code> / <code>Admin@2026!</code><br/>
+          <strong>Demo:</strong> <code>demo@matchmind.ai</code> / <code>Demo@2026!</code>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="register-panel" class="form-panel">
+        <div class="field">
+          <label>اسم المستخدم</label>
+          <input type="text" id="reg-username" placeholder="اسمك هنا"/>
+        </div>
+        <div class="field">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="reg-email" placeholder="you@example.com"/>
+        </div>
+        <div class="field">
+          <label>كلمة المرور (8+ أحرف، حرف كبير، رقم)</label>
+          <input type="password" id="reg-pass" placeholder="••••••••"/>
+        </div>
+        <div class="field">
+          <label>كود الدعوة (اختياري)</label>
+          <input type="text" id="reg-referral" placeholder="BETA2026"/>
+        </div>
+        <button class="btn-primary" onclick="doRegister()">إنشاء الحساب</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ MAIN APP ══════════════════════════════════ -->
+<div id="app-page" class="page">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="nav-logo">⚡ MatchMind <span class="dot" style="color:var(--primary)">●</span> AI</div>
+    <div class="nav-center">
+      <button class="nav-btn active" onclick="showView('predict')">🎯 تحليل</button>
+      <button class="nav-btn" onclick="showView('history')">📋 السجل</button>
+      <button class="nav-btn" onclick="showView('backtest')">📊 باك-تيست</button>
+      <button class="nav-btn" onclick="showView('montecarlo')">🎲 مونتي كارلو</button>
+      <button class="nav-btn" onclick="showView('rl')">🤖 RL Agent</button>
+      <button class="nav-btn" onclick="showView('macro')">🌍 ماكرو</button>
+      <button class="nav-btn" id="admin-nav-btn" style="display:none" onclick="showView('admin')">🛡 إدارة</button>
+    </div>
+    <div class="nav-right">
+      <div class="ws-badge">
+        <div class="ws-dot" id="ws-dot"></div>
+        <span id="ws-status-text">غير متصل</span>
+      </div>
+      <div class="user-chip">
+        <div class="avatar" id="user-avatar">?</div>
+        <span id="nav-username">—</span>
+        <span class="tier-badge" id="nav-tier">free</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">خروج</button>
+    </div>
+  </nav>
+
+  <!-- ─── PREDICT VIEW ─── -->
+  <div id="predict-view" class="view active">
+    <div class="main-layout">
+
+      <!-- LEFT: Form + Result -->
+      <div>
+        <div class="card predict-form">
+          <div class="card-title"><span class="ct-icon">🎯</span> تحليل مباراة جديدة</div>
+
+          <div class="grid2">
+            <div class="field-sm">
+              <label>الفريق المضيف</label>
+              <input type="text" id="home-team" placeholder="Real Madrid"/>
+            </div>
+            <div class="field-sm">
+              <label>الفريق الزائر</label>
+              <input type="text" id="away-team" placeholder="Barcelona"/>
+            </div>
+          </div>
+
+          <div class="grid3">
+            <div class="field-sm">
+              <label>معرف المباراة</label>
+              <input type="text" id="match-id" placeholder="M-2026-001"/>
+            </div>
+            <div class="field-sm">
+              <label>أوزان السوق</label>
+              <input type="number" id="market-odds" step="0.01" min="1.01" max="100" value="2.10"/>
+            </div>
+            <div class="field-sm">
+              <label>رأس المال ($)</label>
+              <input type="number" id="bankroll" min="1" value="5000"/>
+            </div>
+          </div>
+
+          <div class="section-divider">🧠 ميزات ML</div>
+
+          <div class="grid3">
+            <div class="field-sm">
+              <label>فورم المضيف <span id="lbl-hf">0.65</span></label>
+              <div class="slider-row">
+                <input type="range" id="home-form" min="0" max="1" step="0.01" value="0.65"
+                  oninput="document.getElementById('lbl-hf').textContent=this.value"/>
+              </div>
+            </div>
+            <div class="field-sm">
+              <label>فورم الزائر <span id="lbl-af">0.45</span></label>
+              <div class="slider-row">
+                <input type="range" id="away-form" min="0" max="1" step="0.01" value="0.45"
+                  oninput="document.getElementById('lbl-af').textContent=this.value"/>
+              </div>
+            </div>
+            <div class="field-sm">
+              <label>الإصابات <span id="lbl-inj">0.1</span></label>
+              <div class="slider-row">
+                <input type="range" id="injury" min="0" max="1" step="0.01" value="0.1"
+                  oninput="document.getElementById('lbl-inj').textContent=this.value"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid3" style="margin-top:0.75rem">
+            <div class="field-sm">
+              <label>أهداف المضيف (متوسط)</label>
+              <input type="number" id="home-goals" step="0.1" value="1.8" min="0"/>
+            </div>
+            <div class="field-sm">
+              <label>أهداف الزائر (متوسط)</label>
+              <input type="number" id="away-goals" step="0.1" value="1.2" min="0"/>
+            </div>
+            <div class="field-sm">
+              <label>المواجهات المباشرة (H2H %)</label>
+              <input type="number" id="h2h-home" step="0.01" min="0" max="1" value="0.55"/>
+            </div>
+          </div>
+
+          <div class="section-divider">💬 السيمتنت والثقة</div>
+
+          <div class="grid2">
+            <div class="field-sm">
+              <label>درجة المشاعر <span id="lbl-sent">+0.30</span></label>
+              <div class="slider-row">
+                <input type="range" id="sentiment" min="-1" max="1" step="0.01" value="0.30"
+                  oninput="document.getElementById('lbl-sent').textContent=(+this.value>0?'+':'')+this.value"/>
+              </div>
+            </div>
+            <div class="field-sm">
+              <label>ثقتك الشخصية <span id="lbl-conf">0.60</span></label>
+              <div class="slider-row">
+                <input type="range" id="user-conf" min="0" max="1" step="0.01" value="0.60"
+                  oninput="document.getElementById('lbl-conf').textContent=this.value"/>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-predict" id="predict-btn" onclick="doPrediction()">
+            <div class="spinner"></div>
+            <span class="btn-text">⚡ تشغيل التحليل الذكي</span>
+          </button>
+        </div>
+
+        <!-- RESULT -->
+        <div class="result-card" id="result-card">
+          <div class="result-header">
+            <div>
+              <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">النتيجة</div>
+              <div class="match-vs" id="result-match">— vs —</div>
+            </div>
+            <div id="result-signal" class="signal-badge signal-watch">—</div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <div class="metric-val blue" id="res-ai">—%</div>
+              <div class="metric-label">AI Probability</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val positive" id="res-consensus">—%</div>
+              <div class="metric-label">Consensus</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="res-ev">—%</div>
+              <div class="metric-label">Expected Value</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val positive" id="res-kelly">$—</div>
+              <div class="metric-label">Kelly Stake</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val blue" id="res-edge">—%</div>
+              <div class="metric-label">Edge</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="res-conf">—</div>
+              <div class="metric-label">Confidence</div>
+            </div>
+          </div>
+
+          <div class="prob-bar-wrap">
+            <div class="prob-label">
+              <span>احتمالية التوافق</span>
+              <span id="prob-pct-lbl">0%</span>
+            </div>
+            <div class="prob-bar"><div class="prob-fill" id="prob-fill" style="width:0%"></div></div>
+          </div>
+
+          <div class="result-meta" id="result-meta"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+
+        <!-- Live Feed -->
+        <div class="card">
+          <div class="card-title" style="justify-content:space-between">
+            <span><span class="ct-icon">📡</span> تغذية مباشرة</span>
+            <span id="feed-count" style="font-family:var(--mono);font-size:0.75rem;color:var(--primary)">0</span>
+          </div>
+          <div class="live-feed" id="live-feed">
+            <div class="empty-state">
+              <div class="e-icon">📡</div>
+              <p>في انتظار البث المباشر...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+          <div class="card-title"><span class="ct-icon">📊</span> إحصائياتك</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+            <div class="metric-box">
+              <div class="metric-val blue" id="my-count">0</div>
+              <div class="metric-label">تحليل</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val positive" id="my-tier-disp">free</div>
+              <div class="metric-label">الباقة</div>
+            </div>
+          </div>
+          <div style="margin-top:0.85rem">
+            <canvas id="mini-chart" height="80"></canvas>
+          </div>
+        </div>
+
+        <!-- Whale Alerts (user) -->
+        <div class="card" id="whale-card">
+          <div class="card-title"><span class="ct-icon">🐋</span> تنبيهات الحيتان</div>
+          <div id="whale-feed" class="live-feed" style="max-height:180px">
+            <div class="empty-state">
+              <div class="e-icon">🐋</div>
+              <p>لا توجد تنبيهات حتى الآن</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── HISTORY VIEW ─── -->
+  <div id="history-view" class="view">
+    <div style="padding:1.5rem;max-width:1000px;margin:0 auto">
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between">
+          <span><span class="ct-icon">📋</span> سجل التحليلات</span>
+          <button class="refresh-btn" onclick="loadHistory()">🔄 تحديث</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="history-table" id="history-table">
+            <thead>
+              <tr>
+                <th>المباراة</th>
+                <th>AI %</th>
+                <th>Consensus %</th>
+                <th>EV %</th>
+                <th>Stake $</th>
+                <th>الموديل</th>
+                <th>الوقت</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">لا توجد بيانات بعد</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ADMIN VIEW ─── -->
+  <div id="admin-view" class="view">
+    <div class="admin-header">
+      <div>
+        <div class="admin-title">🛡 لوحة التحكم <span>ADMIN</span></div>
+        <div class="text-muted text-sm" id="admin-last-update">—</div>
+      </div>
+      <button class="refresh-btn" onclick="loadAdminStats()">🔄 تحديث البيانات</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-icon">🔮</div>
+        <div class="kpi-val green" id="kpi-preds">—</div>
+        <div class="kpi-lbl">إجمالي التحليلات</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-val blue" id="kpi-users">—</div>
+        <div class="kpi-lbl">المستخدمون</div>
+      </div>
+      <div class="kpi-card yellow">
+        <div class="kpi-icon">📈</div>
+        <div class="kpi-val yellow" id="kpi-accuracy">—</div>
+        <div class="kpi-lbl">دقة الموديل</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-icon">💹</div>
+        <div class="kpi-val green" id="kpi-ev">—</div>
+        <div class="kpi-lbl">متوسط EV%</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-icon">🔌</div>
+        <div class="kpi-val purple" id="kpi-ws">—</div>
+        <div class="kpi-lbl">اتصالات نشطة</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="admin-grid" style="margin-bottom:1.25rem">
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">📊</span> حجم التحليلات (24 ساعة)</div>
+        <div class="chart-wrap"><canvas id="hourly-chart" height="160"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">🥧</span> توزيع السيمتنت</div>
+        <div class="chart-wrap" style="height:160px;display:flex;align-items:center;justify-content:center">
+          <canvas id="sentiment-chart" style="max-height:140px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="admin-grid-3">
+
+      <!-- Whale Control -->
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">🐋</span> التحكم بتنبيهات الحيتان</div>
+        <div class="whale-trigger">
+          <button class="btn-whale btn-whale-up" onclick="triggerWhale('UP')">🟢 إرسال UP</button>
+          <button class="btn-whale btn-whale-down" onclick="triggerWhale('DOWN')">🔴 إرسال DOWN</button>
+        </div>
+        <div class="field-sm" style="margin-bottom:0.75rem">
+          <label>معرف المباراة</label>
+          <input type="text" id="whale-match" value="DEMO-MATCH" placeholder="MATCH-ID"/>
+        </div>
+        <div class="field-sm" style="margin-bottom:0.75rem">
+          <label>حجم الصفقة ($)</label>
+          <input type="number" id="whale-volume" value="250000" min="1000"/>
+        </div>
+        <div class="field-sm">
+          <label>ملاحظة</label>
+          <input type="text" id="whale-note" placeholder="ملاحظة اختيارية..."/>
+        </div>
+
+        <div class="divider"></div>
+        <div class="card-title" style="margin-bottom:0.75rem"><span class="ct-icon">🏆</span> أعلى EV</div>
+        <div id="top-matches-list">
+          <div class="empty-state" style="padding:1rem"><p>لا توجد بيانات</p></div>
+        </div>
+      </div>
+
+      <!-- Users List -->
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">👥</span> المستخدمون</div>
+        <div class="users-list" id="users-list">
+          <div class="empty-state"><p>تحميل...</p></div>
+        </div>
+      </div>
+
+      <!-- Recent Predictions -->
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">🕐</span> آخر التحليلات</div>
+        <div id="recent-predictions">
+          <div class="empty-state"><p>لا توجد بيانات</p></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── BACKTEST VIEW ─── -->
+  <div id="backtest-view" class="view">
+    <div style="padding:1.5rem;max-width:1100px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:360px 1fr;gap:1.5rem">
+
+        <div class="card">
+          <div class="card-title"><span class="ct-icon">📊</span> إعدادات الباك-تيست</div>
+          <div class="field-sm" style="margin-bottom:0.85rem">
+            <label>الرصيد الابتدائي ($)</label>
+            <input type="number" id="bt-bankroll" value="1000" min="1"/>
+          </div>
+          <div class="field-sm" style="margin-bottom:0.85rem">
+            <label>نسبة Kelly Fraction</label>
+            <input type="number" id="bt-kelly" value="0.5" min="0.01" max="1" step="0.01"/>
+          </div>
+          <div class="field-sm" style="margin-bottom:1rem">
+            <label>عدد الرهانات (تجريبي)</label>
+            <input type="number" id="bt-bets" value="100" min="5" max="500"/>
+          </div>
+          <div class="field-sm" style="margin-bottom:1rem">
+            <label>نسبة الفوز المتوقعة</label>
+            <input type="number" id="bt-winrate" value="0.54" min="0.3" max="0.8" step="0.01"/>
+          </div>
+          <button class="btn-predict" id="bt-run-btn" onclick="runBacktest()" style="margin-top:0">
+            <div class="spinner"></div>
+            <span class="btn-text">▶ تشغيل الباك-تيست</span>
+          </button>
+        </div>
+
+        <div>
+          <div class="card" id="bt-result" style="display:none">
+            <div class="card-title"><span class="ct-icon">📈</span> نتائج الباك-تيست</div>
+            <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem" id="bt-kpis"></div>
+            <canvas id="bt-chart" height="120"></canvas>
+          </div>
+          <div class="card" id="bt-empty" style="text-align:center;padding:3rem">
+            <div style="font-size:3rem;opacity:0.2;margin-bottom:1rem">📊</div>
+            <div style="color:var(--muted)">شغّل الباك-تيست لرؤية النتائج</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MONTE CARLO VIEW ─── -->
+  <div id="montecarlo-view" class="view">
+    <div style="padding:1.5rem;max-width:1100px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:360px 1fr;gap:1.5rem">
+
+        <div class="card">
+          <div class="card-title"><span class="ct-icon">🎲</span> إعدادات مونتي كارلو</div>
+          <div class="field-sm" style="margin-bottom:0.85rem">
+            <label>الرصيد الابتدائي ($)</label>
+            <input type="number" id="mc-bankroll" value="10000" min="100"/>
+          </div>
+          <div class="field-sm" style="margin-bottom:0.85rem">
+            <label>عدد المحاكاة</label>
+            <input type="number" id="mc-sims" value="300" min="10" max="1000"/>
+          </div>
+          <div class="field-sm" style="margin-bottom:1rem">
+            <label>عدد الخطوات</label>
+            <input type="number" id="mc-steps" value="150" min="10" max="500"/>
+          </div>
+          <button class="btn-predict" id="mc-run-btn" onclick="runMonteCarlo()" style="margin-top:0">
+            <div class="spinner"></div>
+            <span class="btn-text">🎲 تشغيل المحاكاة</span>
+          </button>
+        </div>
+
+        <div>
+          <div class="card" id="mc-result" style="display:none">
+            <div class="card-title"><span class="ct-icon">📉</span> نتائج المحاكاة</div>
+            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem" id="mc-kpis"></div>
+            <canvas id="mc-chart" height="140"></canvas>
+          </div>
+          <div class="card" id="mc-empty" style="text-align:center;padding:3rem">
+            <div style="font-size:3rem;opacity:0.2;margin-bottom:1rem">🎲</div>
+            <div style="color:var(--muted)">شغّل المحاكاة لرؤية توزيع المخاطر</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RL AGENT VIEW ─── -->
+  <div id="rl-view" class="view">
+    <div style="padding:1.5rem;max-width:1100px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:360px 1fr;gap:1.5rem">
+
+        <div class="card">
+          <div class="card-title"><span class="ct-icon">🤖</span> RL Agent — إعدادات</div>
+          <div class="field-sm" style="margin-bottom:0.85rem">
+            <label>الرصيد الابتدائي ($)</label>
+            <input type="number" id="rl-bankroll" value="1000" min="10"/>
+          </div>
+          <div class="field-sm" style="margin-bottom:0.85rem">
+            <label>عدد الخطوات</label>
+            <input type="number" id="rl-steps" value="50" min="5" max="500"/>
+          </div>
+          <div class="field-sm" style="margin-bottom:1rem">
+            <label>الاستراتيجية</label>
+            <select id="rl-strategy">
+              <option value="kelly">Kelly Criterion</option>
+              <option value="fixed_10pct">Fixed 10%</option>
+              <option value="random">عشوائي</option>
+            </select>
+          </div>
+          <button class="btn-predict" id="rl-run-btn" onclick="runRLEpisode()" style="margin-top:0">
+            <div class="spinner"></div>
+            <span class="btn-text">🤖 تشغيل Episode</span>
+          </button>
+        </div>
+
+        <div>
+          <div class="card" id="rl-result" style="display:none">
+            <div class="card-title" style="justify-content:space-between">
+              <span><span class="ct-icon">🏆</span> نتيجة الـ Episode</span>
+              <span id="rl-ruin-badge"></span>
+            </div>
+            <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem" id="rl-kpis"></div>
+            <canvas id="rl-chart" height="120"></canvas>
+          </div>
+          <div class="card" id="rl-empty" style="text-align:center;padding:3rem">
+            <div style="font-size:3rem;opacity:0.2;margin-bottom:1rem">🤖</div>
+            <div style="color:var(--muted)">شغّل Episode لمشاهدة العميل وهو يتعلم</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MACRO UNIVERSE VIEW ─── -->
+  <div id="macro-view" class="view">
+    <div style="padding:1.5rem;max-width:1200px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:280px 1fr;gap:1.5rem">
+
+        <div>
+          <div class="card" style="margin-bottom:1rem">
+            <div class="card-title"><span class="ct-icon">🌍</span> إعداد المحاكاة</div>
+            <div class="field-sm" style="margin-bottom:0.85rem">
+              <label>عدد الدول</label>
+              <input type="number" id="macro-countries" value="20" min="2" max="100"/>
+            </div>
+            <button class="btn-predict" onclick="macroInit()" style="margin-top:0;margin-bottom:0.75rem">
+              <span class="btn-text">🌍 تهيئة</span>
+            </button>
+            <div class="field-sm" style="margin-bottom:0.85rem">
+              <label>خطوات</label>
+              <input type="number" id="macro-steps" value="20" min="1" max="100"/>
+            </div>
+            <div class="check-row">
+              <input type="checkbox" id="macro-cb" checked/>
+              <label for="macro-cb">تفعيل البنك المركزي AI</label>
+            </div>
+            <button class="btn-predict" id="macro-step-btn" onclick="macroStep()" style="margin-top:0.75rem">
+              <div class="spinner"></div>
+              <span class="btn-text">⏩ تقدّم الاقتصاد</span>
+            </button>
+          </div>
+
+          <div class="card" id="macro-shocks-card" style="display:none">
+            <div class="card-title"><span class="ct-icon">⚡</span> صدمات اقتصادية</div>
+            <div id="macro-shocks-list"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem" id="macro-kpis"></div>
+
+          <div class="card" style="margin-bottom:1rem">
+            <div class="card-title"><span class="ct-icon">📈</span> الناتج المحلي العالمي عبر الزمن</div>
+            <canvas id="macro-chart" height="130"></canvas>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="ct-icon">🏆</span> أقوى 5 اقتصادات</div>
+            <div id="macro-top5"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-page -->
+
+<script>
+// ══════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════
+const API = '';  // Same origin; change to 'http://localhost:8000' for dev
+let token = null, currentUser = null, ws = null;
+let charts = {};
+let feedCount = 0;
+
+// ══════════════════════════════════
+//  INIT
+// ══════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loading-screen').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('loading-screen').style.display = 'none';
+      const saved = localStorage.getItem('mm_token');
+      if (saved) {
+        token = saved;
+        verifyAndLoad();
+      } else {
+        showPage('auth');
+      }
+    }, 500);
+  }, 1400);
+});
+
+async function verifyAndLoad() {
+  try {
+    const res = await apiFetch('/api/v1/auth/me');
+    currentUser = res;
+    loadApp();
+  } catch {
+    localStorage.removeItem('mm_token');
+    token = null;
+    showPage('auth');
+  }
+}
+
+// ══════════════════════════════════
+//  PAGE & VIEW CONTROL
+// ══════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(name + '-page').classList.add('active');
+}
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(name + '-view').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event?.target?.classList?.add('active');
+  if (name === 'history') loadHistory();
+  if (name === 'admin')   loadAdminStats();
+}
+
+// ══════════════════════════════════
+//  AUTH TABS
+// ══════════════════════════════════
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+  const idx = tab === 'login' ? 0 : 1;
+  document.querySelectorAll('.auth-tab')[idx].classList.add('active');
+  document.getElementById(tab + '-panel').classList.add('active');
+}
+
+// ══════════════════════════════════
+//  API HELPER
+// ══════════════════════════════════
+async function apiFetch(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+  if (body)  opts.body = JSON.stringify(body);
+
+  const res = await fetch(API + path, opts);
+
+  if (res.status === 401) {
+    doLogout();
+    throw new Error('Session expired');
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'خطأ في الاتصال' }));
+    throw new Error(err.detail || 'Request failed');
+  }
+  return res.json();
+}
+
+// ══════════════════════════════════
+//  AUTH ACTIONS
+// ══════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const remember = document.getElementById('remember-me').checked;
+
+  if (!email || !pass) return toast('أدخل البريد وكلمة المرور', 'error');
+
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled = true;
+  document.getElementById('login-btn-text').textContent = 'جاري الدخول...';
+
+  try {
+    const data = await apiFetch('/api/v1/auth/login', 'POST', { email, password: pass, remember_me: remember });
+    token = data.access_token;
+    currentUser = data.user;
+    localStorage.setItem('mm_token', token);
+    loadApp();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('login-btn-text').textContent = 'تسجيل الدخول';
+  }
+}
+
+async function doRegister() {
+  const username = document.getElementById('reg-username').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const pass     = document.getElementById('reg-pass').value;
+  const referral = document.getElementById('reg-referral').value.trim();
+
+  if (!username || !email || !pass) return toast('أكمل جميع الحقول المطلوبة', 'error');
+
+  try {
+    await apiFetch('/api/v1/auth/register', 'POST', { username, email, password: pass, referral_code: referral || null });
+    toast('✅ تم إنشاء حسابك بنجاح! سجّل دخولك الآن', 'success');
+    document.getElementById('login-email').value = email;
+    switchAuthTab('login');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function doLogout() {
+  token = null; currentUser = null;
+  localStorage.removeItem('mm_token');
+  if (ws) { ws.close(); ws = null; }
+  document.getElementById('result-card').classList.remove('show');
+  showPage('auth');
+  toast('👋 تم تسجيل الخروج', 'warn');
+}
+
+// ══════════════════════════════════
+//  LOAD APP
+// ══════════════════════════════════
+function loadApp() {
+  showPage('app');
+  // Update nav
+  const u = currentUser;
+  const initials = (u.username || '?').charAt(0).toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('nav-username').textContent = u.username;
+  document.getElementById('my-tier-disp').textContent = u.tier || 'free';
+  const tierEl = document.getElementById('nav-tier');
+  tierEl.textContent = u.tier || 'free';
+  tierEl.className = `tier-badge tier-${u.tier || 'free'}`;
+  document.getElementById('my-count').textContent = u.predictions_count || 0;
+
+  if (u.is_admin) {
+    document.getElementById('admin-nav-btn').style.display = 'inline-flex';
+  }
+
+  // Auto-fill match id
+  document.getElementById('match-id').value = `M-${Date.now().toString(36).toUpperCase()}`;
+
+  // Init mini chart
+  initMiniChart();
+
+  // Connect WebSocket
+  connectWS();
+
+  toast(`مرحباً ${u.username}! 🎉`, 'success');
+}
+
+// ══════════════════════════════════
+//  WEBSOCKET
+// ══════════════════════════════════
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host  = location.host || 'localhost:8000';
+  const wsToken = currentUser?.is_admin ? 'admin-secret-token-2026' : '';
+  const url = `${proto}//${host}/ws/alerts?token=${wsToken}`;
+
+  ws = new WebSocket(url);
+
+  ws.onopen = () => {
+    updateWSBadge(true);
+    toast('📡 متصل بالبث المباشر', 'success');
+  };
+
+  ws.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'ping') return;
+      if (msg.type === 'new_prediction') addFeedItem(msg, 'new_prediction');
+      if (msg.type === 'whale_alert')    addWhaleAlert(msg);
+    } catch {}
+  };
+
+  ws.onerror = () => updateWSBadge(false);
+  ws.onclose = () => {
+    updateWSBadge(false);
+    // Reconnect after 5s
+    setTimeout(() => { if (token) connectWS(); }, 5000);
+  };
+}
+
+function updateWSBadge(connected) {
+  const dot = document.getElementById('ws-dot');
+  const txt = document.getElementById('ws-status-text');
+  dot.className = 'ws-dot' + (connected ? ' connected' : '');
+  txt.textContent = connected ? 'متصل' : 'غير متصل';
+}
+
+function addFeedItem(msg, type) {
+  const feed = document.getElementById('live-feed');
+  const empty = feed.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  feedCount++;
+  document.getElementById('feed-count').textContent = feedCount;
+
+  const d = msg.data || {};
+  const el = document.createElement('div');
+  el.className = `feed-item ${type}`;
+  el.innerHTML = `
+    <div class="feed-icon">🔮</div>
+    <div class="feed-content">
+      <div class="feed-title">${d.match || '—'}</div>
+      <div class="feed-sub">Consensus: ${d.consensus || '—'} | EV: ${d.ev || '—'} | ${d.signal || ''}</div>
+      <div class="feed-sub" style="opacity:0.5">${d.user || ''} · ${timeAgo(d.timestamp)}</div>
+    </div>`;
+  feed.prepend(el);
+  if (feed.children.length > 15) feed.lastChild.remove();
+}
+
+function addWhaleAlert(msg) {
+  const feed = document.getElementById('whale-feed');
+  const empty = feed.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const d = msg.data || {};
+  const el = document.createElement('div');
+  el.className = 'feed-item whale';
+  el.innerHTML = `
+    <div class="feed-icon">${d.direction === 'UP' ? '🐋🟢' : '🐋🔴'}</div>
+    <div class="feed-content">
+      <div class="feed-title">${d.direction} — $${(d.volume||0).toLocaleString()}</div>
+      <div class="feed-sub">${d.match_id || '—'} · ثقة: ${((d.confidence||0)*100).toFixed(0)}%</div>
+      <div class="feed-sub" style="opacity:0.5">${d.note||''} · ${timeAgo(d.timestamp)}</div>
+    </div>`;
+  feed.prepend(el);
+  toast(`🐋 تنبيه حوت: ${d.direction} $${(d.volume||0).toLocaleString()}`, 'warn');
+}
+
+// ══════════════════════════════════
+//  PREDICT
+// ══════════════════════════════════
+async function doPrediction() {
+  const btn = document.getElementById('predict-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const payload = {
+    match_id:       document.getElementById('match-id').value || `M-${Date.now()}`,
+    home_team:      document.getElementById('home-team').value || 'Home',
+    away_team:      document.getElementById('away-team').value || 'Away',
+    market_odds:    parseFloat(document.getElementById('market-odds').value),
+    bankroll:       parseFloat(document.getElementById('bankroll').value),
+    sentiment_score:parseFloat(document.getElementById('sentiment').value),
+    home_form:      parseFloat(document.getElementById('home-form').value),
+    away_form:      parseFloat(document.getElementById('away-form').value),
+    injury_factor:  parseFloat(document.getElementById('injury').value),
+    home_goals:     parseFloat(document.getElementById('home-goals').value),
+    away_goals:     parseFloat(document.getElementById('away-goals').value),
+    h2h_home:       parseFloat(document.getElementById('h2h-home').value),
+    user_confidence:parseFloat(document.getElementById('user-conf').value),
+  };
+
+  try {
+    const r = await apiFetch('/api/v1/predict', 'POST', payload);
+    displayResult(r);
+    // Update count
+    const cnt = document.getElementById('my-count');
+    cnt.textContent = parseInt(cnt.textContent || '0') + 1;
+    // Refresh mini chart
+    updateMiniChart(r.consensus_probability);
+    // Auto-fill next match id
+    document.getElementById('match-id').value = `M-${Date.now().toString(36).toUpperCase()}`;
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function displayResult(r) {
+  const card = document.getElementById('result-card');
+  card.classList.add('show');
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  document.getElementById('result-match').textContent = `${r.home_team} ضد ${r.away_team}`;
+
+  // Signal
+  const sigEl = document.getElementById('result-signal');
+  sigEl.textContent = r.signal || '—';
+  sigEl.className = 'signal-badge ' + (
+    r.signal?.includes('BUY')  ? 'signal-buy'  :
+    r.signal?.includes('SKIP') ? 'signal-skip' : 'signal-watch'
+  );
+
+  // Metrics
+  const aiPct   = (r.ai_probability   * 100).toFixed(1);
+  const consPct = (r.consensus_probability * 100).toFixed(1);
+  const ev      = (r.expected_value * 100).toFixed(2);
+  const edge    = (r.edge * 100).toFixed(2);
+
+  document.getElementById('res-ai').textContent        = aiPct + '%';
+  document.getElementById('res-consensus').textContent  = consPct + '%';
+  document.getElementById('res-ev').textContent         = (r.expected_value >= 0 ? '+' : '') + ev + '%';
+  document.getElementById('res-kelly').textContent      = '$' + r.kelly_stake.toLocaleString();
+  document.getElementById('res-edge').textContent       = (r.edge >= 0 ? '+' : '') + edge + '%';
+  document.getElementById('res-conf').textContent       = r.consensus_confidence;
+
+  // Color EV
+  const evEl = document.getElementById('res-ev');
+  evEl.className = 'metric-val ' + (r.expected_value > 0.05 ? 'positive' : r.expected_value < -0.05 ? 'negative' : 'neutral');
+  const edgeEl = document.getElementById('res-edge');
+  edgeEl.className = 'metric-val ' + (r.edge > 0 ? 'positive' : r.edge < 0 ? 'negative' : 'neutral');
+
+  // Progress bar
+  document.getElementById('prob-fill').style.width = consPct + '%';
+  document.getElementById('prob-pct-lbl').textContent = consPct + '%';
+
+  // Meta tags
+  const meta = document.getElementById('result-meta');
+  meta.innerHTML = `
+    <span class="meta-tag">${r.consensus_status}</span>
+    <span class="meta-tag">${r.sentiment_label}</span>
+    <span class="meta-tag">📦 ${r.model_version}</span>
+    <span class="meta-tag">⚡ ROI: ${r.roi_pct >= 0 ? '+' : ''}${r.roi_pct}%</span>
+    <span class="meta-tag">↕ divergence: ${(r.divergence*100).toFixed(1)}%</span>
+  `;
+}
+
+// ══════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════
+async function loadHistory() {
+  try {
+    const data = await apiFetch('/api/v1/predictions/history?limit=30');
+    const tbody = document.getElementById('history-tbody');
+    if (!data.predictions.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">لا توجد تحليلات بعد</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.predictions.map(p => {
+      const evCls = p.ev > 0.05 ? 'color:var(--primary)' : p.ev < -0.05 ? 'color:var(--danger)' : 'color:var(--warn)';
+      return `<tr>
+        <td style="font-family:var(--sans);font-weight:700">${p.home_team||'?'} vs ${p.away_team||'?'}</td>
+        <td>${(p.ai_prob*100).toFixed(1)}%</td>
+        <td style="color:var(--accent2)">${(p.consensus*100).toFixed(1)}%</td>
+        <td style="${evCls}">${(p.ev*100 >= 0 ? '+' : '')}${(p.ev*100).toFixed(2)}%</td>
+        <td>$${(p.stake||0).toFixed(0)}</td>
+        <td><span class="badge badge-gray">${p.model_version||'—'}</span></td>
+        <td style="color:var(--muted);font-size:0.73rem">${timeAgo(p.timestamp)}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+// ══════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════
+async function loadAdminStats() {
+  try {
+    const s = await apiFetch('/api/v1/admin/stats');
+    document.getElementById('admin-last-update').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar');
+
+    // KPIs
+    animateNum('kpi-preds', s.total_predictions);
+    animateNum('kpi-users', s.total_users);
+    document.getElementById('kpi-accuracy').textContent = s.model_accuracy ? (s.model_accuracy * 100).toFixed(1) + '%' : 'N/A';
+    document.getElementById('kpi-ev').textContent = (s.avg_ev >= 0 ? '+' : '') + (s.avg_ev * 100).toFixed(2) + '%';
+    document.getElementById('kpi-ws').textContent = s.active_connections?.total || 0;
+
+    // Hourly chart
+    renderHourlyChart(s.hourly_volume || []);
+
+    // Sentiment chart
+    renderSentimentChart(s.sentiment_distribution || {});
+
+    // Top matches
+    renderTopMatches(s.top_matches || []);
+
+    // Recent predictions
+    renderRecentPredictions(s.recent_predictions || []);
+
+    // Users
+    loadUsers();
+
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function loadUsers() {
+  try {
+    const data = await apiFetch('/api/v1/admin/users');
+    const list = document.getElementById('users-list');
+    if (!data.users.length) { list.innerHTML = '<div class="empty-state"><p>لا توجد مستخدمون</p></div>'; return; }
+    list.innerHTML = data.users.map(u => `
+      <div class="user-row">
+        <div class="avatar" style="width:30px;height:30px;font-size:0.75rem">${(u.username||'?').charAt(0).toUpperCase()}</div>
+        <div style="flex:1">
+          <div class="uname">${u.username} ${u.is_admin ? '<span class="badge badge-blue">Admin</span>' : ''} ${u.is_banned ? '<span class="banned-tag">محظور</span>' : ''}</div>
+          <div class="uemail">${u.email}</div>
+        </div>
+        <div class="ucnt">${u.predictions_count || 0} 🔮</div>
+      </div>
+    `).join('');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function renderTopMatches(matches) {
+  const el = document.getElementById('top-matches-list');
+  if (!matches.length) { el.innerHTML = '<div class="empty-state" style="padding:0.5rem"><p>لا توجد بيانات</p></div>'; return; }
+  el.innerHTML = matches.slice(0,5).map(m => {
+    const evCls = m.ev > 0 ? 'color:var(--primary)' : 'color:var(--danger)';
+    return `<div class="top-match-row">
+      <div class="tm-teams">${m.match}</div>
+      <div class="tm-ev" style="${evCls}">${(m.ev*100 >= 0 ? '+' : '')}${(m.ev*100).toFixed(1)}%</div>
+      <div style="color:var(--muted);font-size:0.72rem;font-family:var(--mono)">${(m.consensus*100).toFixed(0)}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderRecentPredictions(preds) {
+  const el = document.getElementById('recent-predictions');
+  if (!preds.length) { el.innerHTML = '<div class="empty-state"><p>لا توجد بيانات</p></div>'; return; }
+  el.innerHTML = preds.map(p => `
+    <div class="top-match-row">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:0.82rem">${p.match}</div>
+        <div style="font-size:0.72rem;color:var(--muted)">${timeAgo(p.timestamp)}</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:var(--mono);font-size:0.8rem;color:var(--accent2)">${p.consensus}%</div>
+        <div style="font-size:0.7rem;color:${p.ev > 0 ? 'var(--primary)' : 'var(--danger)'}">${p.ev >= 0 ? '+' : ''}${p.ev}%</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function triggerWhale(direction) {
+  const matchId = document.getElementById('whale-match').value || 'DEMO';
+  const volume  = parseFloat(document.getElementById('whale-volume').value) || 250000;
+  const note    = document.getElementById('whale-note').value || null;
+  try {
+    await apiFetch('/api/v1/admin/trigger-whale', 'POST', {
+      match_id: matchId, volume, direction, confidence: 0.75, note
+    });
+    toast(`🐋 تم إرسال تنبيه ${direction} بنجاح`, direction === 'UP' ? 'success' : 'warn');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+// ══════════════════════════════════
+//  CHARTS
+// ══════════════════════════════════
+function initMiniChart() {
+  const ctx = document.getElementById('mini-chart');
+  if (!ctx) return;
+  if (charts.mini) charts.mini.destroy();
+  charts.mini = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: '#00e5a0',
+        backgroundColor: 'rgba(0,229,160,0.08)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+        pointBackgroundColor: '#00e5a0'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false, min: 0, max: 1 }
+      },
+      animation: { duration: 400 }
+    }
+  });
+}
+
+function updateMiniChart(val) {
+  if (!charts.mini) return;
+  const d = charts.mini.data;
+  const now = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  d.labels.push(now);
+  d.datasets[0].data.push(val);
+  if (d.labels.length > 10) { d.labels.shift(); d.datasets[0].data.shift(); }
+  charts.mini.update();
+}
+
+function renderHourlyChart(data) {
+  const ctx = document.getElementById('hourly-chart');
+  if (!ctx) return;
+  if (charts.hourly) charts.hourly.destroy();
+  const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+  charts.hourly = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'تحليلات',
+        data: data.length === 24 ? data : Array(24).fill(0),
+        backgroundColor: 'rgba(0,229,160,0.25)',
+        borderColor: '#00e5a0',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+
+function renderSentimentChart(dist) {
+  const ctx = document.getElementById('sentiment-chart');
+  if (!ctx) return;
+  if (charts.sentiment) charts.sentiment.destroy();
+  const total = (dist.Positive || 0) + (dist.Neutral || 0) + (dist.Negative || 0) || 1;
+  charts.sentiment = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['إيجابي', 'محايد', 'سلبي'],
+      datasets: [{
+        data: [dist.Positive || 0, dist.Neutral || 0, dist.Negative || 0],
+        backgroundColor: ['rgba(0,229,160,0.7)', 'rgba(245,158,11,0.7)', 'rgba(239,68,68,0.7)'],
+        borderColor: '#111827',
+        borderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', font: { size: 10, family: 'Tajawal' }, padding: 10 }
+        }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════
+function toast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+  el.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3100);
+}
+
+function timeAgo(iso) {
+  if (!iso) return '—';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'الآن';
+  if (m < 60) return `${m} د`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} س`;
+  return `${Math.floor(h/24)} ي`;
+}
+
+function animateNum(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let start = 0;
+  const step = Math.ceil(target / 30);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = start.toLocaleString();
+    if (start >= target) clearInterval(timer);
+  }, 30);
+}
+
+// ══════════════════════════════════
+//  BACKTEST
+// ══════════════════════════════════
+async function runBacktest() {
+  const btn = document.getElementById('bt-run-btn');
+  btn.classList.add('loading'); btn.disabled = true;
+  try {
+    const n     = parseInt(document.getElementById('bt-bets').value);
+    const wr    = parseFloat(document.getElementById('bt-winrate').value);
+    const br    = parseFloat(document.getElementById('bt-bankroll').value);
+    const kf    = parseFloat(document.getElementById('bt-kelly').value);
+    const data  = await apiFetch(`/api/v1/backtest/demo?n_bets=${n}&initial_bankroll=${br}&win_rate=${wr}`);
+    showBacktestResult(data);
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+function showBacktestResult(d) {
+  document.getElementById('bt-empty').style.display = 'none';
+  const rc = document.getElementById('bt-result');
+  rc.style.display = 'block';
+  const roiCls  = d.roi_pct  >= 0 ? 'color:var(--primary)' : 'color:var(--danger)';
+  const ddCls   = d.max_drawdown_pct > 20 ? 'color:var(--danger)' : 'color:var(--warn)';
+  document.getElementById('bt-kpis').innerHTML = `
+    <div class="metric-box"><div class="metric-val blue">${d.total_bets}</div><div class="metric-label">رهانات</div></div>
+    <div class="metric-box"><div class="metric-val" style="${roiCls}">${d.roi_pct >= 0 ? '+' : ''}${d.roi_pct}%</div><div class="metric-label">ROI</div></div>
+    <div class="metric-box"><div class="metric-val" style="${ddCls}">${d.max_drawdown_pct}%</div><div class="metric-label">Max Drawdown</div></div>
+    <div class="metric-box"><div class="metric-val positive">${(d.win_rate*100).toFixed(1)}%</div><div class="metric-label">Win Rate</div></div>
+  `;
+  // Chart
+  const bkrl = d.history.map(h => h.bankroll);
+  const ctx  = document.getElementById('bt-chart');
+  if (charts.bt) charts.bt.destroy();
+  charts.bt = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: bkrl.map((_,i) => i+1),
+      datasets: [{
+        label: 'Bankroll', data: bkrl,
+        borderColor: d.roi_pct >= 0 ? '#00e5a0' : '#ef4444',
+        backgroundColor: d.roi_pct >= 0 ? 'rgba(0,229,160,0.07)' : 'rgba(239,68,68,0.07)',
+        borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0
+      }]
+    },
+    options: { responsive:true, plugins:{legend:{display:false}},
+      scales:{ x:{display:false}, y:{ticks:{color:'#64748b'}, grid:{color:'rgba(255,255,255,0.04)'}} } }
+  });
+  toast(`✅ باك-تيست: ROI ${d.roi_pct}% | Drawdown ${d.max_drawdown_pct}%`, d.roi_pct >= 0 ? 'success' : 'warn');
+}
+
+// ══════════════════════════════════
+//  MONTE CARLO
+// ══════════════════════════════════
+async function runMonteCarlo() {
+  const btn = document.getElementById('mc-run-btn');
+  btn.classList.add('loading'); btn.disabled = true;
+  try {
+    const br   = parseFloat(document.getElementById('mc-bankroll').value);
+    const sims = parseInt(document.getElementById('mc-sims').value);
+    const steps= parseInt(document.getElementById('mc-steps').value);
+    const data = await apiFetch(`/api/v1/montecarlo/demo?n_simulations=${sims}&initial_bankroll=${br}`);
+    showMCResult(data);
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+function showMCResult(d) {
+  document.getElementById('mc-empty').style.display = 'none';
+  document.getElementById('mc-result').style.display = 'block';
+  const ruinPct = (d.ruin_probability * 100).toFixed(1);
+  document.getElementById('mc-kpis').innerHTML = `
+    <div class="metric-box"><div class="metric-val positive">$${d.median_final.toLocaleString()}</div><div class="metric-label">الوسيط</div></div>
+    <div class="metric-box"><div class="metric-val blue">$${d.p5_final.toLocaleString()}</div><div class="metric-label">P5 (أسوأ)</div></div>
+    <div class="metric-box"><div class="metric-val positive">$${d.p95_final.toLocaleString()}</div><div class="metric-label">P95 (أفضل)</div></div>
+    <div class="metric-box"><div class="metric-val ${parseFloat(ruinPct) > 10 ? 'negative' : 'neutral'}">${ruinPct}%</div><div class="metric-label">احتمال الإفلاس</div></div>
+    <div class="metric-box"><div class="metric-val warn">${(d.avg_max_drawdown*100).toFixed(1)}%</div><div class="metric-label">متوسط Drawdown</div></div>
+    <div class="metric-box"><div class="metric-val blue">${d.n_simulations}</div><div class="metric-label">محاكاة</div></div>
+  `;
+  // Chart: sample paths
+  const ctx = document.getElementById('mc-chart');
+  if (charts.mc) charts.mc.destroy();
+  const palette = ['#00e5a0','#3b82f6','#f59e0b','#ef4444','#a855f7','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16'];
+  charts.mc = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length: Math.max(...d.sample_paths.map(p=>p.length))}, (_,i)=>i),
+      datasets: d.sample_paths.map((path, i) => ({
+        data: path, borderColor: palette[i % palette.length],
+        borderWidth: 1, fill: false, tension: 0.3, pointRadius: 0,
+        label: `Sim ${i+1}`
+      }))
+    },
+    options: { responsive:true, plugins:{legend:{display:false}},
+      scales:{ x:{display:false}, y:{ticks:{color:'#64748b'}, grid:{color:'rgba(255,255,255,0.04)'}} } }
+  });
+  toast(`🎲 ${d.n_simulations} محاكاة | احتمال الإفلاس: ${ruinPct}%`, parseFloat(ruinPct) < 5 ? 'success' : 'warn');
+}
+
+// ══════════════════════════════════
+//  RL AGENT
+// ══════════════════════════════════
+async function runRLEpisode() {
+  const btn = document.getElementById('rl-run-btn');
+  btn.classList.add('loading'); btn.disabled = true;
+  try {
+    const br  = parseFloat(document.getElementById('rl-bankroll').value);
+    const st  = parseInt(document.getElementById('rl-steps').value);
+    const str = document.getElementById('rl-strategy').value;
+    const data = await apiFetch(`/api/v1/rl/episode?n_steps=${st}&initial_bankroll=${br}&strategy=${str}`);
+    showRLResult(data);
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+function showRLResult(d) {
+  document.getElementById('rl-empty').style.display = 'none';
+  document.getElementById('rl-result').style.display = 'block';
+  const roiCls = d.roi_pct >= 0 ? 'color:var(--primary)' : 'color:var(--danger)';
+  document.getElementById('rl-ruin-badge').innerHTML = d.ruin
+    ? '<span class="badge badge-red">💀 إفلاس</span>'
+    : '<span class="badge badge-green">✅ نجاة</span>';
+  document.getElementById('rl-kpis').innerHTML = `
+    <div class="metric-box"><div class="metric-val blue">${d.n_steps}</div><div class="metric-label">خطوات</div></div>
+    <div class="metric-box"><div class="metric-val positive">$${d.final_bankroll.toLocaleString()}</div><div class="metric-label">الرصيد النهائي</div></div>
+    <div class="metric-box"><div class="metric-val" style="${roiCls}">${d.roi_pct >= 0 ? '+' : ''}${d.roi_pct}%</div><div class="metric-label">ROI</div></div>
+    <div class="metric-box"><div class="metric-val neutral">${d.total_reward.toFixed(2)}</div><div class="metric-label">Reward</div></div>
+  `;
+  const bks = d.log.map(s => s.new_bankroll);
+  const ctx = document.getElementById('rl-chart');
+  if (charts.rl) charts.rl.destroy();
+  charts.rl = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: d.log.map(s => s.step),
+      datasets: [{
+        label: 'Bankroll', data: bks,
+        borderColor: d.ruin ? '#ef4444' : '#00e5a0',
+        backgroundColor: d.ruin ? 'rgba(239,68,68,0.07)' : 'rgba(0,229,160,0.07)',
+        borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0
+      }]
+    },
+    options: { responsive:true, plugins:{legend:{display:false}},
+      scales:{ x:{ticks:{color:'#64748b',maxTicksLimit:10}}, y:{ticks:{color:'#64748b'}, grid:{color:'rgba(255,255,255,0.04)'}} } }
+  });
+  toast(`🤖 ${d.strategy} | ROI: ${d.roi_pct}%`, d.roi_pct >= 0 ? 'success' : 'warn');
+}
+
+// ══════════════════════════════════
+//  MACRO UNIVERSE
+// ══════════════════════════════════
+let macroHistory = [];
+
+async function macroInit() {
+  try {
+    const n = parseInt(document.getElementById('macro-countries').value);
+    const data = await apiFetch('/api/v1/macro/init', 'POST', { n_countries: n, n_steps: 1 });
+    macroHistory = [];
+    renderMacroTop5(data.countries || []);
+    renderMacroKPIs({ t: 0, gdp_world: 0, inflation_avg: 0, debt_avg: 0, supply: 0, demand: 0 });
+    toast(`🌍 تم تهيئة اقتصاد بـ ${n} دولة`, 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function macroStep() {
+  const btn = document.getElementById('macro-step-btn');
+  btn.classList.add('loading'); btn.disabled = true;
+  try {
+    const steps = parseInt(document.getElementById('macro-steps').value);
+    const cb    = document.getElementById('macro-cb').checked;
+    const data  = await apiFetch(`/api/v1/macro/step?n_steps=${steps}&apply_cb=${cb}`, 'POST');
+    macroHistory = macroHistory.concat(data.history || []);
+    renderMacroKPIs(data.latest_snapshot || {});
+    renderMacroTop5(data.top_countries || []);
+    renderMacroChart();
+    // Shocks
+    if (data.shocks && data.shocks.length > 0) {
+      const sc = document.getElementById('macro-shocks-card');
+      sc.style.display = 'block';
+      document.getElementById('macro-shocks-list').innerHTML =
+        data.shocks.map(s => `<div class="feed-item whale"><div class="feed-icon">⚡</div>
+          <div class="feed-content"><div class="feed-title">${s.shock}</div>
+          <div class="feed-sub">t=${s.t} | ${s.affected_countries} دولة متأثرة</div></div></div>`).join('');
+      toast(`⚡ صدمة اقتصادية: ${data.shocks.map(s=>s.shock).join(', ')}`, 'warn');
+    }
+    if (data.central_bank?.actions?.length) {
+      toast(`🏦 البنك المركزي: ${data.central_bank.actions.length} تدخّل`, 'success');
+    }
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+function renderMacroKPIs(snap) {
+  document.getElementById('macro-kpis').innerHTML = `
+    <div class="kpi-card green" style="padding:1rem"><div class="kpi-icon">🌐</div>
+      <div class="kpi-val green" style="font-size:1.4rem">$${Math.round(snap.gdp_world||0).toLocaleString()}</div>
+      <div class="kpi-lbl">GDP العالمي</div></div>
+    <div class="kpi-card yellow" style="padding:1rem"><div class="kpi-icon">📈</div>
+      <div class="kpi-val yellow" style="font-size:1.4rem">${(snap.inflation_avg||0).toFixed(2)}%</div>
+      <div class="kpi-lbl">متوسط التضخم</div></div>
+    <div class="kpi-card red" style="padding:1rem"><div class="kpi-icon">💳</div>
+      <div class="kpi-val red" style="font-size:1.4rem">$${(snap.debt_avg||0).toFixed(1)}</div>
+      <div class="kpi-lbl">متوسط الديون</div></div>
+    <div class="kpi-card blue" style="padding:1rem"><div class="kpi-icon">⏱</div>
+      <div class="kpi-val blue" style="font-size:1.4rem">${snap.t||0}</div>
+      <div class="kpi-lbl">الخطوة الزمنية</div></div>
+  `;
+}
+
+function renderMacroTop5(countries) {
+  const el = document.getElementById('macro-top5');
+  if (!countries.length) return;
+  el.innerHTML = countries.slice(0,5).map((c,i) => `
+    <div class="top-match-row">
+      <div style="width:24px;text-align:center;font-weight:900;color:var(--muted)">${i+1}</div>
+      <div style="flex:1;font-weight:700">${c.name}</div>
+      <div style="font-family:var(--mono);color:var(--accent2)">$${c.gdp.toLocaleString()}</div>
+      <div style="font-family:var(--mono);font-size:0.75rem;color:var(--warn)">${c.inflation_pct}%↑</div>
+    </div>`).join('');
+}
+
+function renderMacroChart() {
+  const ctx = document.getElementById('macro-chart');
+  if (!ctx || !macroHistory.length) return;
+  if (charts.macro) charts.macro.destroy();
+  charts.macro = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: macroHistory.map(s => `t${s.t}`),
+      datasets: [
+        { label: 'GDP', data: macroHistory.map(s => s.gdp_world), borderColor: '#00e5a0', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 0, yAxisID: 'y' },
+        { label: 'Inflation%', data: macroHistory.map(s => s.inflation_avg), borderColor: '#f59e0b', borderWidth: 1.5, fill: false, tension: 0.3, pointRadius: 0, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+      scales: {
+        x: { ticks: { color: '#64748b', maxTicksLimit: 10 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y:  { position: 'right', ticks: { color: '#00e5a0' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y1: { position: 'left',  ticks: { color: '#f59e0b' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('login-panel')?.classList.contains('active') && document.getElementById('auth-page')?.classList.contains('active')) doLogin();
+  }
+});
+</script>
+</body>
+</html>
